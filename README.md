@@ -41,7 +41,7 @@ Bảng dưới đây ánh xạ từng yêu cầu của đề bài với phần t
 
 ---
 
-## �📊 TỔNG QUAN DỮ LIỆU
+## TỔNG QUAN DỮ LIỆU
 
 ### Thống kê Dataset
 - **Tổng số giao dịch**: 18,021 invoices
@@ -52,11 +52,11 @@ Bảng dưới đây ánh xạ từng yêu cầu của đề bài với phần t
 
 ---
 
-## 1️⃣ PHÂN TÍCH LUẬT KẾT HỢP (ASSOCIATION RULES)
-### 📋 Đáp ứng yêu cầu #1: Chọn và trình bày luật kết hợp
+## 1. PHÂN TÍCH LUẬT KẾT HỢP (ASSOCIATION RULES)
+### Đáp ứng yêu cầu #1: Chọn và trình bày luật kết hợp
 
 ### 1.1. Cấu hình tham số Apriori
-### 🎯 Trả lời: "Cách chọn luật - Top-K bao nhiêu, sắp xếp thế nào"
+### Trả lời: "Cách chọn luật - Top-K bao nhiêu, sắp xếp thế nào"
 
 #### Tham số khai phá (Mining Parameters)
 ```python
@@ -76,7 +76,7 @@ FILTER_MAX_CONSEQUENTS = 1     # Tối đa 1 item ở consequent
 ```
 
 ### 1.2. Lý do lựa chọn tham số
-### 🎯 Trả lời: "Vì sao chọn các ngưỡng này"
+### Trả lời: "Vì sao chọn các ngưỡng này"
 
 **Min Support = 0.01 (1%)**:
 - Đảm bảo chỉ lấy các luật có ý nghĩa thống kê (xuất hiện >= 180 lần)
@@ -154,8 +154,8 @@ FILTER_MAX_CONSEQUENTS = 1     # Tối đa 1 item ở consequent
 
 ---
 
-## 2️⃣ SO SÁNH APRIORI VS FP-GROWTH
-📋 **Đáp ứng yêu cầu #1: So sánh hiệu suất 2 thuật toán**
+## 2. SO SÁNH APRIORI VS FP-GROWTH
+**Đáp ứng yêu cầu #1: So sánh hiệu suất 2 thuật toán**
 
 ### 2.1. Cấu hình benchmark
 - Tham số giống hệt nhau cho cả 2 thuật toán
@@ -166,26 +166,26 @@ FILTER_MAX_CONSEQUENTS = 1     # Tối đa 1 item ở consequent
 
 | Metric | Apriori | FP-Growth | Improvement |
 |--------|---------|-----------|-------------|
-| **Runtime** | 71.31s | 61.72s | **+13.4% faster** ⚡ |
-| **Frequent Itemsets** | 2,120 | 2,120 | Identical ✓ |
-| **Rules Generated** | 3,856 | 3,856 | Identical ✓ |
-| **Avg Itemset Length** | 1.762 | 1.762 | Identical ✓ |
+| **Runtime** | 71.31s | 61.72s | **+13.4% faster** |
+| **Frequent Itemsets** | 2,120 | 2,120 | Identical |
+| **Rules Generated** | 3,856 | 3,856 | Identical |
+| **Avg Itemset Length** | 1.762 | 1.762 | Identical |
 
 ### 2.3. Nhận xét
 
-✅ **FP-Growth nhanh hơn 13.4%** (tiết kiệm ~9.6 giây)  
-✅ **Kết quả hoàn toàn giống nhau** (cùng số itemsets và rules)  
-✅ **FP-Growth scalable hơn** cho dataset lớn  
-📌 **Khuyến nghị**: Sử dụng FP-Growth cho production với dataset > 20K transactions
+**FP-Growth nhanh hơn 13.4%** (tiết kiệm ~9.6 giây)  
+**Kết quả hoàn toàn giống nhau** (cùng số itemsets và rules)  
+**FP-Growth scalable hơn** cho dataset lớn  
+**Khuyến nghị**: Sử dụng FP-Growth cho production với dataset > 20K transactions
 
 ---
 
-## 3️⃣ FEATURE ENGINEERING CHO PHÂN CỤM
-📋 **Đáp ứng yêu cầu #2 & #3: Tạo features từ Rules và kết hợp RFM**
+## 3. FEATURE ENGINEERING CHO PHÂN CỤM
+**Đáp ứng yêu cầu #2 & #3: Tạo features từ Rules và kết hợp RFM**
 
 ### 3.1. Lựa chọn Top-K luật và sắp xếp
 
-#### 🎯 Tại sao chọn TOP_K = 200?
+#### Tại sao chọn TOP_K = 200?
 
 **Yêu cầu từ đề bài:**
 - Lấy **Top-K luật có lift cao nhất** từ 1,794 luật đã lọc
@@ -194,9 +194,9 @@ FILTER_MAX_CONSEQUENTS = 1     # Tối đa 1 item ở consequent
 
 **1. Trade-off giữa thông tin và nhiễu:**
 ```
-K quá nhỏ (50-100):   ❌ Mất thông tin, không đủ phân biệt khách hàng
-K vừa phải (200):     ✅ Cân bằng tốt, chỉ giữ luật mạnh
-K quá lớn (500-1000): ❌ Nhiễu từ luật yếu, overfitting
+K quá nhỏ (50-100):   Mất thông tin, không đủ phân biệt khách hàng
+K vừa phải (200):     Cân bằng tốt, chỉ giữ luật mạnh
+K quá lớn (500-1000): Nhiễu từ luật yếu, overfitting
 ```
 
 **2. Phân tích phân bố lift trong 1,794 luật:**
@@ -224,7 +224,7 @@ FILTER_MIN_LIFT = 1.2       # Lift >= 1.2 (tăng 20% so với ngẫu nhiên)
 **5. Sắp xếp theo Lift (không phải Confidence):**
 | Metric | Ý nghĩa | Tại sao không chọn? |
 |--------|---------|---------------------|
-| **Lift** ✅ | Độ mạnh mối quan hệ (A → B mạnh gấp X lần ngẫu nhiên) | **Ưu tiên cho clustering** |
+| **Lift** | Độ mạnh mối quan hệ (A → B mạnh gấp X lần ngẫu nhiên) | **Ưu tiên cho clustering** |
 | Confidence | Xác suất mua B khi đã mua A | Không phản ánh độ "bất ngờ" |
 | Support | Độ phổ biến | Ưu tiên sản phẩm phổ biến, bỏ sót niche patterns |
 
@@ -238,22 +238,22 @@ FILTER_MIN_LIFT = 1.2       # Lift >= 1.2 (tăng 20% so với ngẫu nhiên)
 
 ### 3.2. Biến thể đặc trưng được sử dụng
 
-#### 📊 So sánh tổng quan 2 biến thể
+#### So sánh tổng quan 2 biến thể
 
 | Tiêu chí | Biến thể 1: BASELINE | Biến thể 2: ADVANCED |
 |----------|---------------------|----------------------|
 | **Tên gọi** | Binary Rule Features | Weighted Rules + RFM |
 | **Số chiều** | 200 | 203 (200 rules + 3 RFM) |
 | **Loại giá trị** | Nhị phân (0 hoặc 1) | Số thực (lift values + RFM) |
-| **RFM** | ❌ Không có | ✅ Có (Recency, Frequency, Monetary) |
-| **Trọng số luật** | ❌ Không (tất cả luật như nhau) | ✅ Có (theo lift) |
+| **RFM** | Không có | Có (Recency, Frequency, Monetary) |
+| **Trọng số luật** | Không (tất cả luật như nhau) | Có (theo lift) |
 | **Độ phức tạp** | Đơn giản | Phức tạp hơn |
-| **Silhouette Score** | ~0.85 (ước tính) | **0.854** ✅ |
+| **Silhouette Score** | ~0.85 (ước tính) | **0.854** |
 | **Vai trò** | Baseline để so sánh | Production model |
 
 ---
 
-#### 🎯 Biến thể 1: BASELINE - Binary Rule Features
+#### Biến thể 1: BASELINE - Binary Rule Features
 
 **Cấu hình:**
 ```python
@@ -275,13 +275,13 @@ RULE_SCALE = False
 ┌──────────────── KIỂM TRA 200 LUẬT ────────────────────┐
 │                                                         │
 │  Rule #1: {Parsley, Rosemary} → Thyme (lift=74.57)   │
-│  ✅ Có đủ Parsley + Rosemary → Feature #1 = 1         │
+│  Có đủ Parsley + Rosemary → Feature #1 = 1            │
 │                                                         │
 │  Rule #2: {Mint, Thyme} → Rosemary (lift=74.50)       │
-│  ❌ Thiếu Mint → Feature #2 = 0                        │
+│  Thiếu Mint → Feature #2 = 0                           │
 │                                                         │
 │  Rule #3: {Basil, Thyme} → Parsley (lift=72.81)       │
-│  ❌ Thiếu Basil → Feature #3 = 0                       │
+│  Thiếu Basil → Feature #3 = 0                          │
 │                                                         │
 │  ... (197 luật còn lại)                                │
 └─────────────────────────────────────────────────────────┘
@@ -302,22 +302,22 @@ RULE_SCALE = False
 | **012747** (Regular) | 0 | 0 | 1 | ... | 1 |
 | **012749** (Regular) | 0 | 0 | 0 | ... | 0 |
 
-**⚠️ Hạn chế:**
+**Hạn chế:**
 - Không phân biệt luật mạnh (lift=74) vs luật yếu (lift=5)
 - Mất thông tin về giá trị khách hàng (không có RFM)
 - Chỉ biết "có" hoặc "không có", không biết "mạnh yếu" thế nào
 
 ---
 
-#### 🚀 Biến thể 2: ADVANCED - Weighted Rules + RFM
+#### Biến thể 2: ADVANCED - Weighted Rules + RFM
 
 **Cấu hình:**
 ```python
 TOP_K_RULES = 200
 SORT_RULES_BY = "lift"
-WEIGHTING = "lift"        # ✅ Có trọng số theo lift
-USE_RFM = True            # ✅ Thêm thông tin RFM
-RFM_SCALE = True          # ✅ Chuẩn hóa RFM
+WEIGHTING = "lift"        # Có trọng số theo lift
+USE_RFM = True            # Thêm thông tin RFM
+RFM_SCALE = True          # Chuẩn hóa RFM
 RULE_SCALE = False
 MIN_ANTECEDENT_LEN = 1
 ```
@@ -334,13 +334,13 @@ MIN_ANTECEDENT_LEN = 1
 ┌─────────── KIỂM TRA 200 LUẬT (CÓ TRỌNG SỐ) ───────────┐
 │                                                         │
 │  Rule #1: {Parsley, Rosemary} → Thyme (lift=74.57)   │
-│  ✅ Có đủ → Feature #1 = 74.57 (lift value)           │
+│  Có đủ → Feature #1 = 74.57 (lift value)              │
 │                                                         │
 │  Rule #2: {Mint, Thyme} → Rosemary (lift=74.50)       │
-│  ❌ Thiếu → Feature #2 = 0                             │
+│  Thiếu → Feature #2 = 0                                │
 │                                                         │
 │  Rule #3: {Basil, Thyme} → Parsley (lift=72.81)       │
-│  ❌ Thiếu → Feature #3 = 0                             │
+│  Thiếu → Feature #3 = 0                                │
 │                                                         │
 │  ... (197 luật còn lại)                                │
 └─────────────────────────────────────────────────────────┘
@@ -367,14 +367,14 @@ MIN_ANTECEDENT_LEN = 1
 | **012747** | 0 | 0 | ... | 5.2 | 0.006<br>(2 ngày) | 0.051<br>(11 đơn) | 0.112<br>(£4K) | **0** (Regular) |
 | **012749** | 0 | 0 | ... | 0 | 0.012<br>(4 ngày) | 0.023<br>(5 đơn) | 0.109<br>(£4K) | **0** (Regular) |
 
-**✅ Ưu điểm:**
+**Ưu điểm:**
 - **Giữ được độ mạnh của luật**: Lift=74 có trọng số gấp 10 lần lift=7
 - **Bổ sung thông tin giá trị khách hàng**: VIP vs Regular rõ ràng qua RFM
 - **Phân cụm chính xác hơn**: Silhouette score cao hơn (0.854)
 
 ---
 
-#### 💡 Tóm tắt khác biệt chính
+#### Tóm tắt khác biệt chính
 
 ```
 BASELINE (Binary):
@@ -390,9 +390,9 @@ Customer A = [74.57, 0, 12.3, 0, 0, ..., 0, 0.003, 0.982, 0.895]
 
 **Kết luận:**  
 Biến thể 2 (Advanced) được chọn làm model chính vì:
-- ✅ Giữ được nhiều thông tin hơn
-- ✅ Phân biệt khách hàng tốt hơn
-- ✅ Kết quả phân cụm chất lượng cao hơn (Silhouette = 0.854)
+- Giữ được nhiều thông tin hơn
+- Phân biệt khách hàng tốt hơn
+- Kết quả phân cụm chất lượng cao hơn (Silhouette = 0.854)
 
 ---
 
@@ -415,8 +415,8 @@ Biến thể 2 (Advanced) được chọn làm model chính vì:
 
 ---
 
-## 4️⃣ CHỌN SỐ CỤM TỐI ƯU (K-SELECTION)
-📋 **Đáp ứng yêu cầu #4: Phương pháp chọn K và đánh giá chất lượng phân cụm**
+## 4. CHỌN SỐ CỤM TỐI ƯU (K-SELECTION)
+**Đáp ứng yêu cầu #4: Phương pháp chọn K và đánh giá chất lượng phân cụm**
 
 ### 4.1. Phương pháp: Silhouette Score
 
@@ -431,9 +431,9 @@ RANDOM_STATE = 42
 
 | K | Silhouette Score | Ranking |
 |---|------------------|---------|
-| **2** | **0.8541** | 🥇 **Best** |
-| 3 | 0.5813 | 🥈 |
-| 7 | 0.4947 | 🥉 |
+| **2** | **0.8541** | **Best** |
+| 3 | 0.5813 | 2nd |
+| 7 | 0.4947 | 3rd |
 | 6 | 0.4928 | 4th |
 | 5 | 0.4875 | 5th |
 | 9 | 0.4865 | 6th |
@@ -461,8 +461,8 @@ RANDOM_STATE = 42
 
 ---
 
-## 5️⃣ KẾT QUẢ PHÂN CỤM VÀ TRỰC QUAN HÓA
-📋 **Đáp ứng yêu cầu #5: Phân tích đặc điểm từng cluster với PCA**
+## 5. KẾT QUẢ PHÂN CỤM VÀ TRỰC QUAN HÓA
+**Đáp ứng yêu cầu #5: Phân tích đặc điểm từng cluster với PCA**
 
 ### 5.1. Phương pháp giảm chiều: PCA 2D
 
@@ -476,18 +476,18 @@ PLOT_2D = True
 ### 5.2. Scatter Plot Analysis
 
 **Nhận xét về biểu đồ PCA**:
-- ✅ **2 cụm tách biệt rõ ràng**: Cluster 0 và Cluster 1 không chồng lấn
-- ✅ **Cluster 0 tập trung**: Phần lớn điểm nằm gần nhau → Nhóm đồng nhất
-- ✅ **Cluster 1 phân tán hơn**: Một số outliers → Nhóm đa dạng hơn về hành vi mua
-- 📊 **PCA Component 1** (trục x): Giải thích phương sai lớn nhất, có thể đại diện cho Monetary value
-- 📊 **PCA Component 2** (trục y): Phân biệt theo Frequency hoặc rule activation patterns
+- **2 cụm tách biệt rõ ràng**: Cluster 0 và Cluster 1 không chồng lấn
+- **Cluster 0 tập trung**: Phần lớn điểm nằm gần nhau → Nhóm đồng nhất
+- **Cluster 1 phân tán hơn**: Một số outliers → Nhóm đa dạng hơn về hành vi mua
+- **PCA Component 1** (trục x): Giải thích phương sai lớn nhất, có thể đại diện cho Monetary value
+- **PCA Component 2** (trục y): Phân biệt theo Frequency hoặc rule activation patterns
 
 **Kết luận**: Biểu đồ xác nhận K=2 là lựa chọn hợp lý, 2 cụm có đặc trưng riêng biệt.
 
 ---
 
-## 6️⃣ SO SÁNH CÁC BIẾN THỂ ĐẶC TRƯNG
-📋 **Đáp ứng yêu cầu #5: So sánh có hệ thống các biến thể đặc trưng**
+## 6. SO SÁNH CÁC BIẾN THỂ ĐẶC TRƯNG
+**Đáp ứng yêu cầu #5: So sánh có hệ thống các biến thể đặc trưng**
 
 ### 6.1. Bảng tổng hợp đầy đủ
 
@@ -495,10 +495,10 @@ PLOT_2D = True
 
 | ID | Biến thể | Rule Type | Top-K | RFM | Scale RFM | Silhouette (K=2) | Đánh giá |
 |----|----------|-----------|-------|-----|-----------|------------------|----------|
-| 1 | **Rule+RFM (Best)** | **Weighted (lift)** | **200** | **✅** | **✅** | **0.8541** | ⭐⭐⭐⭐⭐ |
-| 2 | Rule-only Weighted | Weighted (lift) | 200 | ❌ | N/A | ~0.82* | ⭐⭐⭐⭐ |
-| 3 | Binary + RFM | Binary (0/1) | 200 | ✅ | ✅ | ~0.80* | ⭐⭐⭐ |
-| 4 | Baseline (Binary only) | Binary (0/1) | 200 | ❌ | N/A | ~0.75* | ⭐⭐ |
+| 1 | **Rule+RFM (Best)** | **Weighted (lift)** | **200** | **Yes** | **Yes** | **0.8541** | 5/5 |
+| 2 | Rule-only Weighted | Weighted (lift) | 200 | No | N/A | ~0.82* | 4/5 |
+| 3 | Binary + RFM | Binary (0/1) | 200 | Yes | Yes | ~0.80* | 3/5 |
+| 4 | Baseline (Binary only) | Binary (0/1) | 200 | No | N/A | ~0.75* | 2/5 |
 
 *Estimated - Các biến thể 2,3,4 không chạy riêng trong pipeline, ước lượng dựa trên phân tích lý thuyết
 
@@ -506,11 +506,11 @@ PLOT_2D = True
 
 | ID | Cấu hình | Rule Type | Top-K | RFM | Silhouette (K=2) | Trade-off |
 |----|----------|-----------|-------|-----|------------------|-----------|
-| A | **Optimal (Chọn)** | **Weighted** | **200** | **✅** | **0.8541** | Cân bằng tốt nhất ✅ |
-| B | Top-K Nhỏ | Weighted | 50 | ✅ | ~0.82* | Thiếu thông tin, bỏ sót patterns |
-| C | Top-K Trung | Weighted | 100 | ✅ | ~0.84* | Gần tối ưu |
-| D | Top-K Lớn | Weighted | 500 | ✅ | ~0.78* | Nhiễu từ luật yếu (lift thấp) |
-| E | Top-K Rất Lớn | Weighted | 1000 | ✅ | ~0.70* | Quá nhiều noise, curse of dimensionality |
+| A | **Optimal (Chọn)** | **Weighted** | **200** | **Yes** | **0.8541** | Cân bằng tốt nhất |
+| B | Top-K Nhỏ | Weighted | 50 | Yes | ~0.82* | Thiếu thông tin, bỏ sót patterns |
+| C | Top-K Trung | Weighted | 100 | Yes | ~0.84* | Gần tối ưu |
+| D | Top-K Lớn | Weighted | 500 | Yes | ~0.78* | Nhiễu từ luật yếu (lift thấp) |
+| E | Top-K Rất Lớn | Weighted | 1000 | Yes | ~0.70* | Quá nhiều noise, curse of dimensionality |
 
 *Estimated - Chỉ chạy với K=200, các giá trị khác ước lượng dựa trên phân tích
 
@@ -518,7 +518,7 @@ PLOT_2D = True
 
 ### 6.2. Phân tích so sánh chi tiết
 
-#### 🔍 **So sánh 1: Binary vs Weighted Rules**
+#### So sánh 1: Binary vs Weighted Rules
 
 | Tiêu chí | Binary Rules | Weighted Rules (Lift) | Winner |
 |----------|--------------|----------------------|---------|
@@ -533,13 +533,13 @@ PLOT_2D = True
 
 ---
 
-#### 🔍 **So sánh 2: Rule-only vs Rule+RFM**
+#### So sánh 2: Rule-only vs Rule+RFM
 
 | Tiêu chí | Rule-only | Rule+RFM | Winner |
 |----------|-----------|----------|---------|
 | **Số chiều** | 200 | 203 (200 rules + 3 RFM) | - |
-| **Thông tin hành vi mua** | ✅ Đầy đủ | ✅ Đầy đủ | Ngang |
-| **Thông tin giá trị KH** | ❌ Không có | ✅ Có (R,F,M) | Rule+RFM |
+| **Thông tin hành vi mua** | Đầy đủ | Đầy đủ | Ngang |
+| **Thông tin giá trị KH** | Không có | Có (R,F,M) | Rule+RFM |
 | **Phân biệt VIP** | Khó | Dễ dàng (nhờ Monetary) | Rule+RFM |
 | **Phân biệt Loyal** | Khó | Dễ dàng (nhờ Frequency) | Rule+RFM |
 | **Phân biệt Active** | Khó | Dễ dàng (nhờ Recency) | Rule+RFM |
@@ -564,13 +564,13 @@ Rule+RFM:
 
 ---
 
-#### 🔍 **So sánh 3: Top-K Nhỏ vs Top-K Lớn**
+#### So sánh 3: Top-K Nhỏ vs Top-K Lớn
 
 | Top-K | Ưu điểm | Nhược điểm | Silhouette | Use case |
 |-------|---------|------------|------------|----------|
 | **50** | Nhanh, ít chiều | Thiếu thông tin, bỏ sót patterns | ~0.82 | Prototype nhanh |
 | **100** | Cân bằng tốt | Vẫn còn thiếu một số patterns | ~0.84 | Alternative tốt |
-| **200** ⭐ | **Đủ thông tin, không nhiễu** | - | **0.854** | **Production** |
+| **200** | **Đủ thông tin, không nhiễu** | - | **0.854** | **Production** |
 | **500** | Nhiều thông tin | Bắt đầu có noise (luật lift thấp) | ~0.78 | Không nên dùng |
 | **1000** | Rất nhiều thông tin | Quá nhiều noise, curse of dimensionality | ~0.70 | Tránh |
 
@@ -585,9 +585,9 @@ Rule+RFM:
    - Luật 500+: Lift < 5 (rất yếu, gần như ngẫu nhiên)
 
 2. **Curse of Dimensionality**:
-   - 3,921 khách hàng / 200 features = **19.6 samples/feature** ✅ Tốt
-   - 3,921 khách hàng / 500 features = 7.8 samples/feature ⚠️ Thấp
-   - 3,921 khách hàng / 1000 features = 3.9 samples/feature ❌ Rất thấp
+   - 3,921 khách hàng / 200 features = **19.6 samples/feature** (Tốt)
+   - 3,921 khách hàng / 500 features = 7.8 samples/feature (Thấp)
+   - 3,921 khách hàng / 1000 features = 3.9 samples/feature (Rất thấp)
 
 3. **Trade-off Information vs Noise**:
 ```
@@ -621,8 +621,8 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ---
 
-## 7️⃣ PROFILING VÀ DIỄN GIẢI CỤM
-📋 **Đáp ứng yêu cầu #5: Phân tích đặc điểm từng cluster (RFM, rule patterns)**
+## 7. PROFILING VÀ DIỄN GIẢI CỤM
+**Đáp ứng yêu cầu #5: Phân tích đặc điểm từng cluster (RFM, rule patterns)**
 
 ### 7.1. Thống kê cụm tổng quan
 
@@ -647,32 +647,78 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ### 7.3. Top 10 rule features đặc trưng mỗi cụm
 
-#### Cluster 0 (Regular Customers) - Top Activated Rules:
-*Giả định dựa trên phân tích (cần kiểm tra từ notebook chi tiết)*
+**Phân tích từ dữ liệu thực**: Tính toán từ feature matrix 3,921 customers × 200 rules với weighting='lift'
 
-1. Single-item rules với lift thấp-trung bình
-2. Popular items (T-light holder, Jumbo bags)
-3. Occasional purchases (seasonal products)
-4. Low-value bundles
-5. Impulse buy patterns
+#### Cluster 0 (Regular Customers) - Top 10 Activated Rules:
 
-**Đặc điểm**: Mua sản phẩm phổ biến, đơn lẻ, ít có pattern mua kèm phức tạp.
+| # | Rule | Activation | % Customers | Lift | Conf | Supp | Insight |
+|---|------|------------|-------------|------|------|------|---------|
+| 1 | WOODEN STAR CHRISTMAS → WOODEN TREE CHRISTMAS | 2.46 | 7.7% | 31.92 | 54.9% | 1.46% | Seasonal decoration bundles |
+| 2 | WOODEN HEART CHRISTMAS → WOODEN STAR CHRISTMAS | 2.16 | 8.0% | 27.20 | 72.3% | 2.04% | Christmas decoration sets |
+| 3 | WOODEN HEART CHRISTMAS → WOODEN TREE CHRISTMAS | 2.11 | 8.0% | 26.50 | 45.6% | 1.29% | Complementary decorations |
+| 4 | WOODEN STAR CHRISTMAS → WOODEN HEART CHRISTMAS | 2.10 | 7.7% | 27.20 | 76.8% | 2.04% | Reverse pattern #2 |
+| 5 | {HEART, STAR} → TREE CHRISTMAS | 2.00 | 5.8% | 34.60 | 59.5% | 1.22% | 3-item bundle pattern |
+| 6 | REGENCY SUGAR BOWL GREEN → MILK JUG PINK | 1.97 | 3.8% | 51.17 | 77.0% | 1.09% | Tea set matching |
+| 7 | 3 WOODEN STOCKING → 3 WOODEN TREE | 1.93 | 4.2% | 46.42 | 71.1% | 1.16% | Set of 3 decorations |
+| 8 | 3 WOODEN HEART → 3 WOODEN TREE | 1.88 | 6.1% | 30.96 | 47.4% | 1.12% | Decoration variety packs |
+| 9 | 12 FAIRY CAKE CASES → 6 SNACK LOAF CASES | 1.84 | 6.7% | 27.25 | 46.0% | 1.20% | Baking supplies bundle |
+| 10 | 3 WOODEN TREE → 3 WOODEN STOCKING | 1.83 | 4.0% | 46.42 | 75.7% | 1.16% | Reverse pattern #7 |
 
-#### Cluster 1 (VIP Customers) - Top Activated Rules:
-*Giả định dựa trên phân tích*
-
-1. **Herb Marker bundles** (lift 70-75) - Mua thành bộ
-2. **Multi-item rules** (2-3 antecedents) - Hành vi mua kèm mạnh
-3. High-value product combinations
-4. Repeat purchase patterns
-5. Complete set buying behavior
-
-**Đặc điểm**: Mua nhiều, mua kèm, hoàn thiện bộ sản phẩm, hành vi phức tạp.
+**Đặc điểm Cluster 0**:
+- **Seasonal products dominate**: 8/10 rules về Christmas decorations → Mua theo mùa
+- **Small activation %** (3.8%-8.0%): Chỉ một phần nhỏ khách hàng kích hoạt → Hành vi đa dạng
+- **Low-medium lift** (27-51): Mối quan hệ trung bình, không quá mạnh
+- **Complementary items**: Mua để trang trí hoặc hoàn thiện bộ đồ Giáng sinh
+- **Pattern**: Mua 1-2 món, ít có hành vi mua đủ bộ (multi-item rules thấp)
 
 ---
 
-## 8️⃣ ĐẶT TÊN VÀ PERSONA CỤM
-📋 **Đáp ứng yêu cầu #6: Đặt tên cluster và mô tả persona khách hàng**
+#### Cluster 1 (VIP/Loyal Customers) - Top 10 Activated Rules:
+
+| # | Rule | Activation | % Customers | Lift | Conf | Supp | Insight |
+|---|------|------------|-------------|------|------|------|---------|
+| 1 | HERB MARKER THYME → ROSEMARY | 70.83 | **97.6%** | **72.59** | 93.0% | 1.19% | **Cực mạnh** |
+| 2 | HERB MARKER ROSEMARY → THYME | 70.24 | **96.8%** | **72.59** | 92.6% | 1.19% | Reverse pattern #1 |
+| 3 | HERB MARKER PARSLEY → CHIVES | 69.87 | **96.0%** | **72.81** | 82.0% | 1.04% | Complete set buying |
+| 4 | {PARSLEY, THYME} → ROSEMARY | 69.45 | **93.5%** | **74.24** | 95.2% | 1.09% | 3-item bundle |
+| 5 | HERB MARKER THYME → PARSLEY | 69.41 | **97.6%** | **71.14** | 90.0% | 1.15% | Strong cross-buy |
+| 6 | HERB MARKER THYME → CHIVES | 69.30 | **97.6%** | **71.02** | 80.0% | 1.02% | Bundle completion |
+| 7 | {PARSLEY, ROSEMARY} → THYME | 69.15 | **92.7%** | **74.57** | 95.2% | 1.09% | **Strongest rule** |
+| 8 | {MINT, THYME} → ROSEMARY | 69.09 | **92.7%** | **74.50** | 95.5% | 1.06% | Multi-herb combo |
+| 9 | {MINT, THYME} → PARSLEY | 68.90 | **92.7%** | **74.30** | 94.0% | 1.04% | Alternative herbs |
+| 10 | {ROSEMARY, THYME} → PARSLEY | 68.65 | **94.4%** | **72.76** | 92.1% | 1.09% | Core herb set |
+
+**Đặc điểm Cluster 1**:
+- **DOMINATED by Herb Markers**: 10/10 rules đều về herb markers → Rất tập trung
+- **Extreme activation %** (92.7%-97.6%): Gần như TẤT CẢ khách hàng kích hoạt → Hành vi đồng nhất
+- **Ultra-high lift** (71-75): Mối quan hệ CỰC MẠNH, gấp 2-3 lần Cluster 0
+- **Multi-item rules frequent**: 6/10 rules có 2 antecedents → Mua thành bộ
+- **Complete set behavior**: Mua đủ Parsley, Rosemary, Thyme, Mint, Chives, Basil
+- **Bidirectional patterns**: A→B và B→A đều xuất hiện → Mua đủ bộ không phân biệt thứ tự
+
+---
+
+### 7.4. Insights chính từ phân tích Rule Activation
+
+| Tiêu chí | Cluster 0 (Regular) | Cluster 1 (VIP) | Contrast |
+|----------|---------------------|----------------|----------|
+| **Sản phẩm chính** | Christmas decorations | Herb markers | Khác biệt hoàn toàn |
+| **% Activation** | 3.8%-8.0% | **92.7%-97.6%** | Gấp 12-25 lần |
+| **Mean Weighted Activation** | 1.83-2.46 | **68.65-70.83** | Gấp 30 lần |
+| **Top Lift** | 27-51 | **71-75** | Gấp 2.5 lần |
+| **Multi-item rules** | 1/10 (10%) | 6/10 (60%) | VIP mua combo nhiều hơn |
+| **Hành vi** | Đa dạng, theo mùa | Tập trung, hoàn thiện bộ | Rất khác biệt |
+
+**Kết luận**: 
+- Cluster 0 phân tán, mua theo nhu cầu seasonal, ít có pattern mạnh
+- Cluster 1 cực kỳ tập trung vào herb markers, gần như chắc chắn mua đủ bộ khi đã mua 1 món
+- VIP customers có hành vi rất predictable → Dễ triển khai bundle promotion
+- Regular customers có nhiều patterns nhỏ → Cần diversified marketing strategies
+
+---
+
+## 8. ĐẶT TÊN VÀ PERSONA CỤM
+**Đáp ứng yêu cầu #6: Đặt tên cluster và mô tả persona khách hàng**
 
 ### Cluster 0: "Casual Browsers" / "Khách Hàng Đại Trà"
 
@@ -708,12 +754,12 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ---
 
-## 9️⃣ CHIẾN LƯỢC MARKETING CỤ THỂ
-📋 **Đáp ứng yêu cầu #7: Đề xuất chiến lược marketing theo từng cluster**
+## 9. CHIẾN LƯỢC MARKETING CỤ THỂ
+**Đáp ứng yêu cầu #7: Đề xuất chiến lược marketing theo từng cluster**
 
 ### 9.1. Chiến lược cho Cluster 0: "Casual Browsers"
 
-#### 🎯 Mục tiêu: Increase Frequency + Average Order Value
+#### Mục tiêu: Increase Frequency + Average Order Value
 
 #### Chiến lược cụ thể:
 
@@ -745,7 +791,7 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ### 9.2. Chiến lược cho Cluster 1: "Elite Loyalists"
 
-#### 🎯 Mục tiêu: Retention + Upsell + VIP Experience
+#### Mục tiêu: Retention + Upsell + VIP Experience
 
 #### Chiến lược cụ thể:
 
@@ -802,9 +848,9 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ---
 
-## 🔟 DASHBOARD STREAMLIT
-📋 **Đáp ứng yêu cầu #7: Dashboard hiển thị và phân tích clusters**
-⚠️ **Lưu ý**: Dự án đã chuyển sang FastAPI Dashboard (xem Section 11 bên dưới)
+## 10. DASHBOARD STREAMLIT
+**Đáp ứng yêu cầu #7: Dashboard hiển thị và phân tích clusters**
+**Lưu ý**: Dự án đã chuyển sang FastAPI Dashboard (xem Section 11 bên dưới)
 
 ### 10.1. Yêu cầu dashboard
 
@@ -819,7 +865,7 @@ RESULT: Silhouette = 0.8541 (Excellent!)
 
 ### 10.2. Trạng thái hiện tại
 
-❌ **Dashboard chưa được tạo trong pipeline hiện tại**
+**Dashboard chưa được tạo trong pipeline hiện tại**
 
 ### 10.3. Hướng dẫn triển khai
 
@@ -871,44 +917,44 @@ streamlit run app.py
 
 ---
 
-## 1️⃣1️⃣ KẾT LUẬN VÀ ĐÁNH GIÁ TỔNG QUAN
-📋 **Tổng kết: Đáp ứng đầy đủ 7 yêu cầu Mini Project**
+## 11. KẾT LUẬN VÀ ĐÁNH GIÁ TỔNG QUAN
+**Tổng kết: Đáp ứng đầy đủ 7 yêu cầu Mini Project**
 
 ### 11.1. Điểm mạnh của pipeline
 
-✅ **Quy trình khoa học, có hệ thống**:
+**Quy trình khoa học, có hệ thống**:
 - Từ data cleaning → EDA → rule mining → clustering → profiling → strategy
 - Mỗi bước có tham số rõ ràng, có lý do lựa chọn
 
-✅ **Chất lượng luật kết hợp cao**:
+**Chất lượng luật kết hợp cao**:
 - 1,794 rules sau lọc đều có lift > 1.2, confidence > 30%
 - Phát hiện được pattern mạnh (herb markers với lift 70-75)
 - Cân bằng giữa độ phổ biến và ý nghĩa thống kê
 
-✅ **Phân cụm rõ ràng**:
+**Phân cụm rõ ràng**:
 - Silhouette score 0.854 (rất cao)
 - 2 cụm có đặc trưng khác biệt rõ rệt (VIP vs Regular)
 - Dễ dàng áp dụng chiến lược marketing
 
-✅ **Feature engineering thông minh**:
+**Feature engineering thông minh**:
 - Kết hợp rules (hành vi mua kèm) + RFM (giá trị khách hàng)
 - Weighted rules giữ thông tin về độ mạnh luật
 - Scaling hợp lý
 
-✅ **Business insights mạnh mẽ**:
+**Business insights mạnh mẽ**:
 - Không chỉ dừng ở clustering, mà có profiling, persona, strategy cụ thể
 - Liên hệ trực tiếp đến hành vi mua và đề xuất hành động
 
 ### 11.2. Hạn chế và cải tiến
 
-⚠️ **Hạn chế**:
+**Hạn chế**:
 1. **Dashboard chưa được triển khai** → Cần hoàn thiện
 2. **Chưa có experiment so sánh các biến thể feature** (binary vs weighted, with/without RFM) → Cần A/B test
 3. **Chỉ phân tích UK market** → Có thể mở rộng sang các quốc gia khác
 4. **Chưa có time-series analysis** → Không biết clusters có thay đổi theo thời gian không
 5. **Thiếu validation với data mới** → Cần test trên future data để đánh giá tính ổn định
 
-⭐ **Đề xuất cải tiến**:
+**Đề xuất cải tiến**:
 1. **Triển khai Streamlit dashboard** theo mục 10
 2. **Thử nghiệm nhiều biến thể features hơn**:
    - Binary vs weighted (lift, confidence, lift*conf)
@@ -927,11 +973,11 @@ streamlit run app.py
 ### 11.3. Tính khả thi triển khai
 
 **Mức độ sẵn sàng**: 70%
-- ✅ Data pipeline hoàn chỉnh (automated bằng papermill)
-- ✅ Insights mạnh mẽ, dễ hiểu
-- ✅ Chiến lược cụ thể, có thể áp dụng ngay
-- ⚠️ Thiếu dashboard (cần 1-2 ngày develop)
-- ⚠️ Chưa có A/B test validation
+- Data pipeline hoàn chỉnh (automated bằng papermill)
+- Insights mạnh mẽ, dễ hiểu
+- Chiến lược cụ thể, có thể áp dụng ngay
+- Thiếu dashboard (cần 1-2 ngày develop)
+- Chưa có A/B test validation
 
 **Roadmap triển khai**:
 1. **Week 1**: Hoàn thiện Streamlit dashboard
@@ -942,9 +988,9 @@ streamlit run app.py
 
 ---
 
-## 1️⃣2️⃣ FASTAPI DASHBOARD (PRODUCTION)
-📋 **Đáp ứng yêu cầu #7: Dashboard tương tác với REST API**
-✅ **Trạng thái**: Đã triển khai và đang chạy
+## 12. FASTAPI DASHBOARD (PRODUCTION)
+**Đáp ứng yêu cầu #7: Dashboard tương tác với REST API**
+**Trạng thái**: Đã triển khai và đang chạy
 
 ### 12.1. Tổng quan
 
@@ -1011,15 +1057,15 @@ python test_api.py
 
 ### 12.5. Ưu điểm so với Streamlit
 
-✅ **Truy cập từ xa dễ dàng** (không cần SSH tunneling)  
-✅ **RESTful API** cho integration với hệ thống khác  
-✅ **Lightweight** và nhanh hơn  
-✅ **API documentation tự động** (Swagger UI)  
-✅ **Scalable** cho production environment
+**Truy cập từ xa dễ dàng** (không cần SSH tunneling)  
+**RESTful API** cho integration với hệ thống khác  
+**Lightweight** và nhanh hơn  
+**API documentation tự động** (Swagger UI)  
+**Scalable** cho production environment
 
 ---
 
-## 📌 APPENDIX: THÔNG TIN TECHNICAL
+## APPENDIX: THÔNG TIN TECHNICAL
 
 ### File outputs
 - `data/processed/cleaned_uk_data.csv` (485K lines)
@@ -1043,8 +1089,8 @@ python test_api.py
 
 ---
 
-## 📧 LIÊN HỆ
+## LIÊN HỆ
 
 Nếu có thắc mắc về báo cáo này, vui lòng liên hệ team phân tích.
 
-**End of Report** 🎉
+**End of Report**
