@@ -238,32 +238,161 @@ FILTER_MIN_LIFT = 1.2       # Lift >= 1.2 (tăng 20% so với ngẫu nhiên)
 
 ### 3.2. Biến thể đặc trưng được sử dụng
 
-#### ✅ Biến thể 1: Baseline (Binary Rule Features)
-```python
-Cấu hình:
-- TOP_K_RULES = 200
-- SORT_RULES_BY = "lift"
-- WEIGHTING = None (binary: 0 hoặc 1)
-- USE_RFM = False
-- RULE_SCALE = False
-```
-**Mô tả**: Mỗi khách hàng được mã hóa thành vector 200 chiều nhị phân. Feature i = 1 nếu khách hàng thỏa mãn antecedents của luật i, ngược lại = 0.
+#### 📊 So sánh tổng quan 2 biến thể
 
-#### ✅ Biến thể 2: Advanced (Weighted Rules + RFM)
+| Tiêu chí | Biến thể 1: BASELINE | Biến thể 2: ADVANCED |
+|----------|---------------------|----------------------|
+| **Tên gọi** | Binary Rule Features | Weighted Rules + RFM |
+| **Số chiều** | 200 | 203 (200 rules + 3 RFM) |
+| **Loại giá trị** | Nhị phân (0 hoặc 1) | Số thực (lift values + RFM) |
+| **RFM** | ❌ Không có | ✅ Có (Recency, Frequency, Monetary) |
+| **Trọng số luật** | ❌ Không (tất cả luật như nhau) | ✅ Có (theo lift) |
+| **Độ phức tạp** | Đơn giản | Phức tạp hơn |
+| **Silhouette Score** | ~0.85 (ước tính) | **0.854** ✅ |
+| **Vai trò** | Baseline để so sánh | Production model |
+
+---
+
+#### 🎯 Biến thể 1: BASELINE - Binary Rule Features
+
+**Cấu hình:**
 ```python
-Cấu hình:
-- TOP_K_RULES = 200
-- SORT_RULES_BY = "lift"
-- WEIGHTING = "lift"           # Trọng số theo lift
-- USE_RFM = True               # Bật RFM features
-- RFM_SCALE = True             # Chuẩn hóa RFM
-- RULE_SCALE = False           # Không scale rule features
-- MIN_ANTECEDENT_LEN = 1       # Cho phép luật 1 item
+TOP_K_RULES = 200
+SORT_RULES_BY = "lift"
+WEIGHTING = None          # Không có trọng số
+USE_RFM = False           # Không dùng RFM
+RULE_SCALE = False
 ```
-**Mô tả**: 
-- **Weighted rule features**: Thay vì 0/1, giá trị = lift của luật (phản ánh độ mạnh mối quan hệ)
-- **RFM features**: Thêm 3 features Recency, Frequency, Monetary (scaled)
-- **Tổng chiều**: 203 features (200 rules + 3 RFM)
+
+**Cách hoạt động:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  KHÁCH HÀNG A (ID: 012748)                              │
+│  Đã mua: {Herb Marker Parsley, Rosemary, Thyme}        │
+└─────────────────────────────────────────────────────────┘
+                        ↓
+┌──────────────── KIỂM TRA 200 LUẬT ────────────────────┐
+│                                                         │
+│  Rule #1: {Parsley, Rosemary} → Thyme (lift=74.57)   │
+│  ✅ Có đủ Parsley + Rosemary → Feature #1 = 1         │
+│                                                         │
+│  Rule #2: {Mint, Thyme} → Rosemary (lift=74.50)       │
+│  ❌ Thiếu Mint → Feature #2 = 0                        │
+│                                                         │
+│  Rule #3: {Basil, Thyme} → Parsley (lift=72.81)       │
+│  ❌ Thiếu Basil → Feature #3 = 0                       │
+│                                                         │
+│  ... (197 luật còn lại)                                │
+└─────────────────────────────────────────────────────────┘
+                        ↓
+         ┌──────────────────────────────┐
+         │  VECTOR KẾT QUẢ (200 số)    │
+         │  [1, 0, 0, 1, 0, ..., 0]    │
+         │   ↑  ↑  ↑  ↑  ↑        ↑    │
+         │   R1 R2 R3 R4 R5  ...  R200 │
+         └──────────────────────────────┘
+```
+
+**Ví dụ cụ thể với 3 khách hàng:**
+
+| Khách hàng | Rule #1<br>{Parsley+Rosemary} | Rule #2<br>{Mint+Thyme} | Rule #3<br>{Basil+Thyme} | ... | Rule #200 |
+|------------|------------------------------|------------------------|-------------------------|-----|-----------|
+| **012748** (VIP) | 1 | 0 | 0 | ... | 0 |
+| **012747** (Regular) | 0 | 0 | 1 | ... | 1 |
+| **012749** (Regular) | 0 | 0 | 0 | ... | 0 |
+
+**⚠️ Hạn chế:**
+- Không phân biệt luật mạnh (lift=74) vs luật yếu (lift=5)
+- Mất thông tin về giá trị khách hàng (không có RFM)
+- Chỉ biết "có" hoặc "không có", không biết "mạnh yếu" thế nào
+
+---
+
+#### 🚀 Biến thể 2: ADVANCED - Weighted Rules + RFM
+
+**Cấu hình:**
+```python
+TOP_K_RULES = 200
+SORT_RULES_BY = "lift"
+WEIGHTING = "lift"        # ✅ Có trọng số theo lift
+USE_RFM = True            # ✅ Thêm thông tin RFM
+RFM_SCALE = True          # ✅ Chuẩn hóa RFM
+RULE_SCALE = False
+MIN_ANTECEDENT_LEN = 1
+```
+
+**Cách hoạt động:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  KHÁCH HÀNG A (ID: 012748) - VIP                        │
+│  Đã mua: {Herb Marker Parsley, Rosemary, Thyme}        │
+│  Recency: 1 ngày | Frequency: 209 đơn | Monetary: £33K │
+└─────────────────────────────────────────────────────────┘
+                        ↓
+┌─────────── KIỂM TRA 200 LUẬT (CÓ TRỌNG SỐ) ───────────┐
+│                                                         │
+│  Rule #1: {Parsley, Rosemary} → Thyme (lift=74.57)   │
+│  ✅ Có đủ → Feature #1 = 74.57 (lift value)           │
+│                                                         │
+│  Rule #2: {Mint, Thyme} → Rosemary (lift=74.50)       │
+│  ❌ Thiếu → Feature #2 = 0                             │
+│                                                         │
+│  Rule #3: {Basil, Thyme} → Parsley (lift=72.81)       │
+│  ❌ Thiếu → Feature #3 = 0                             │
+│                                                         │
+│  ... (197 luật còn lại)                                │
+└─────────────────────────────────────────────────────────┘
+                        ↓
+┌────────────── THÊM THÔNG TIN RFM ─────────────────────┐
+│  Feature #201: Recency = 1 ngày → Scaled = 0.003     │
+│  Feature #202: Frequency = 209 đơn → Scaled = 0.982  │
+│  Feature #203: Monetary = £33,719 → Scaled = 0.895   │
+└─────────────────────────────────────────────────────────┘
+                        ↓
+    ┌────────────────────────────────────────────────┐
+    │  VECTOR KẾT QUẢ (203 số)                      │
+    │  [74.57, 0, 0, 5.2, ..., 0, 0.003, 0.982, 0.895]│
+    │    ↑     ↑  ↑  ↑        ↑    ↑      ↑      ↑   │
+    │   R1    R2 R3 R4  ...  R200  Rec   Freq   Money│
+    └────────────────────────────────────────────────┘
+```
+
+**Ví dụ cụ thể với 3 khách hàng:**
+
+| Khách | Rule #1<br>(lift=74.57) | Rule #2<br>(lift=74.50) | ... | Rule #200 | Recency<br>(scaled) | Frequency<br>(scaled) | Monetary<br>(scaled) | **Cluster** |
+|-------|------------------------|------------------------|-----|-----------|---------------------|----------------------|---------------------|-------------|
+| **012748** | **74.57** | 0 | ... | 0 | 0.003<br>(1 ngày) | 0.982<br>(209 đơn) | 0.895<br>(£33K) | **1** (VIP) |
+| **012747** | 0 | 0 | ... | 5.2 | 0.006<br>(2 ngày) | 0.051<br>(11 đơn) | 0.112<br>(£4K) | **0** (Regular) |
+| **012749** | 0 | 0 | ... | 0 | 0.012<br>(4 ngày) | 0.023<br>(5 đơn) | 0.109<br>(£4K) | **0** (Regular) |
+
+**✅ Ưu điểm:**
+- **Giữ được độ mạnh của luật**: Lift=74 có trọng số gấp 10 lần lift=7
+- **Bổ sung thông tin giá trị khách hàng**: VIP vs Regular rõ ràng qua RFM
+- **Phân cụm chính xác hơn**: Silhouette score cao hơn (0.854)
+
+---
+
+#### 💡 Tóm tắt khác biệt chính
+
+```
+BASELINE (Binary):
+Customer A = [1, 0, 1, 0, 0, ..., 0]
+             ↑     ↑
+          Chỉ biết CÓ hay KHÔNG
+
+ADVANCED (Weighted + RFM):
+Customer A = [74.57, 0, 12.3, 0, 0, ..., 0, 0.003, 0.982, 0.895]
+              ↑          ↑                      ↑      ↑      ↑
+         Biết ĐỘ MẠNH thế nào            + Thông tin GIÁ TRỊ khách hàng
+```
+
+**Kết luận:**  
+Biến thể 2 (Advanced) được chọn làm model chính vì:
+- ✅ Giữ được nhiều thông tin hơn
+- ✅ Phân biệt khách hàng tốt hơn
+- ✅ Kết quả phân cụm chất lượng cao hơn (Silhouette = 0.854)
 
 ---
 
