@@ -183,7 +183,60 @@ FILTER_MAX_CONSEQUENTS = 1     # Tối đa 1 item ở consequent
 ## 3️⃣ FEATURE ENGINEERING CHO PHÂN CỤM
 📋 **Đáp ứng yêu cầu #2 & #3: Tạo features từ Rules và kết hợp RFM**
 
-### 3.1. Biến thể đặc trưng được sử dụng
+### 3.1. Lựa chọn Top-K luật và sắp xếp
+
+#### 🎯 Tại sao chọn TOP_K = 200?
+
+**Yêu cầu từ đề bài:**
+- Lấy **Top-K luật có lift cao nhất** từ 1,794 luật đã lọc
+- Sắp xếp theo **lift** (metric phản ánh độ mạnh mối quan hệ)
+- K=200 được chọn dựa trên các lý do sau:
+
+**1. Trade-off giữa thông tin và nhiễu:**
+```
+K quá nhỏ (50-100):   ❌ Mất thông tin, không đủ phân biệt khách hàng
+K vừa phải (200):     ✅ Cân bằng tốt, chỉ giữ luật mạnh
+K quá lớn (500-1000): ❌ Nhiễu từ luật yếu, overfitting
+```
+
+**2. Phân tích phân bố lift trong 1,794 luật:**
+- **Top 200 luật**: Lift range từ ~0.6 đến **74.57** (rất mạnh)
+- **Top 10 luật**: Lift > 70 (herb marker bundles)
+- **Top 50 luật**: Lift > 30 (mối quan hệ mạnh)
+- **Top 200 luật**: Lift > 10 trung bình (vẫn có ý nghĩa)
+- **Luật 201-1794**: Lift giảm dần, nhiều luật lift < 5 (yếu)
+
+→ **Top 200** capture được phần lớn luật có giá trị, bỏ qua 89% luật yếu
+
+**3. Ngưỡng lọc đã áp dụng trước khi chọn Top-K:**
+```python
+FILTER_MIN_SUPPORT = 0.01   # Chỉ giữ luật xuất hiện >= 1% giao dịch
+FILTER_MIN_CONF = 0.3       # Confidence >= 30%
+FILTER_MIN_LIFT = 1.2       # Lift >= 1.2 (tăng 20% so với ngẫu nhiên)
+```
+→ Đã lọc từ 3,856 → 1,794 luật, giờ chỉ lấy top 200 tốt nhất
+
+**4. Số chiều phù hợp cho K-Means:**
+- 200 chiều rules + 3 chiều RFM = **203 features**
+- Đủ để capture patterns phức tạp nhưng không quá cao (curse of dimensionality)
+- Với 3,921 khách hàng, tỷ lệ samples/features = 19:1 (tốt)
+
+**5. Sắp xếp theo Lift (không phải Confidence):**
+| Metric | Ý nghĩa | Tại sao không chọn? |
+|--------|---------|---------------------|
+| **Lift** ✅ | Độ mạnh mối quan hệ (A → B mạnh gấp X lần ngẫu nhiên) | **Ưu tiên cho clustering** |
+| Confidence | Xác suất mua B khi đã mua A | Không phản ánh độ "bất ngờ" |
+| Support | Độ phổ biến | Ưu tiên sản phẩm phổ biến, bỏ sót niche patterns |
+
+**Ví dụ minh họa:**
+- Luật A: `{Bánh mì} → {Sữa}` - Support=50%, Confidence=60%, **Lift=1.2**
+- Luật B: `{Herb Marker Basil} → {Rosemary}` - Support=1%, Confidence=95%, **Lift=74**
+
+→ Luật B có lift cao hơn nhiều → Mối quan hệ mạnh hơn → Ưu tiên cho clustering
+
+---
+
+### 3.2. Biến thể đặc trưng được sử dụng
 
 #### ✅ Biến thể 1: Baseline (Binary Rule Features)
 ```python
@@ -212,7 +265,9 @@ Cấu hình:
 - **RFM features**: Thêm 3 features Recency, Frequency, Monetary (scaled)
 - **Tổng chiều**: 203 features (200 rules + 3 RFM)
 
-### 3.2. Lý do lựa chọn biến thể nâng cao
+---
+
+### 3.3. Lý do lựa chọn biến thể nâng cao
 
 **Tại sao dùng Lift weighting?**
 - Lift cao = mối quan hệ mua kèm mạnh hơn
@@ -755,4 +810,3 @@ python test_api.py
 Nếu có thắc mắc về báo cáo này, vui lòng liên hệ team phân tích.
 
 **End of Report** 🎉
-
