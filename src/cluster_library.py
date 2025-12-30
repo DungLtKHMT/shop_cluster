@@ -9,6 +9,7 @@ and association rule analysis for shopping cart.
 import datetime as dt
 import os
 import time
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -849,8 +850,8 @@ class DataVisualizer:
         self,
         frequent_itemsets: pd.DataFrame,
         top_n: int = 20,
-        min_len: int | None = None,
-        max_len: int | None = None,
+        min_len: Optional[int] = None,
+        max_len: Optional[int] = None,
         title: str = "Top frequent itemsets theo support",
     ):
         """
@@ -1147,8 +1148,8 @@ class DataVisualizer:
     def plot_rules_network(
         self,
         rules_df: pd.DataFrame,
-        max_rules: int | None = 100,
-        min_lift: float | None = None,
+        max_rules: Optional[int] = 100,
+        min_lift: Optional[float] = None,
         title: str = "Mạng lưới các luật kết hợp (Arrow: antecedent → consequent)",
         figsize: tuple = (12, 8),
     ):
@@ -1313,9 +1314,9 @@ class RuleBasedCustomerClusterer:
         rules_csv_path: str,
         top_k: int = 200,
         sort_by: str = "lift",
-        min_support: float | None = None,
-        min_confidence: float | None = None,
-        min_lift: float | None = None,
+        min_support: Optional[float] = None,
+        min_confidence: Optional[float] = None,
+        min_lift: Optional[float] = None,
     ) -> pd.DataFrame:
         """Đọc rules CSV và chọn Top-K luật để tạo feature."""
         rules = pd.read_csv(rules_csv_path)

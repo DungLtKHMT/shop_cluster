@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Cluster Analysis Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-active {
+            background-color: #0284c7;
+            color: white;
+            border-bottom: 3px solid #0369a1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-md border-b-4 border-cyan-600">
+        <div class="container mx-auto px-6 py-5">
+            <h1 class="text-3xl font-bold text-gray-800">Shop Cluster Analysis</h1>
+            <p class="text-gray-600 mt-1">Phân Tích Phân Khúc Khách Hàng Theo Luật Kết Hợp</p>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-6">
+            <nav class="flex space-x-1">
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200 tab-active" data-tab="overview">
+                    1. Tổng Quan
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200" data-tab="rules">
+                    2. Luật Kết Hợp
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200" data-tab="features">
+                    3. Đặc Trưng
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200" data-tab="clustering">
+                    4. Phân Cụm
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200" data-tab="profiling">
+                    5. Hồ Sơ Cụm
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold text-gray-700 hover:bg-blue-50 transition-colors duration-200" data-tab="strategy">
+                    6. Chiến Lược
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Tab 1: Overview -->
+        <div id="tab-overview" class="tab-content">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Thống Kê Tổng Quan</h2>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg p-6 text-white shadow-lg">
+                        <div class="text-3xl font-bold" id="stat-customers">-</div>
+                        <div class="text-sm mt-2 opacity-90">Tổng Khách Hàng</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-6 text-white shadow-lg">
+                        <div class="text-3xl font-bold" id="stat-clusters">-</div>
+                        <div class="text-sm mt-2 opacity-90">Số Cụm</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg p-6 text-white shadow-lg">
+                        <div class="text-3xl font-bold" id="stat-rules-apriori">-</div>
+                        <div class="text-sm mt-2 opacity-90">Luật Apriori</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg p-6 text-white shadow-lg">
+                        <div class="text-3xl font-bold" id="stat-rules-fpgrowth">-</div>
+                        <div class="text-sm mt-2 opacity-90">Luật FP-Growth</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Phân Bổ Cụm</h3>
+                        <canvas id="clusterDistChart" height="250"></canvas>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">So Sánh Recency (Ngày từ lần mua cuối)</h3>
+                        <canvas id="recencyChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">So Sánh Frequency (Số đơn hàng)</h3>
+                        <canvas id="frequencyChart" height="250"></canvas>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">So Sánh Monetary (Tổng chi tiêu £)</h3>
+                        <canvas id="monetaryChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Association Rules -->
+        <div id="tab-rules" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Phân Tích Luật Kết Hợp</h2>
+                
+                <!-- Filters -->
+                <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Bộ Lọc</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Thuật Toán</label>
+                            <select id="rule-algorithm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option value="apriori">Apriori</option>
+                                <option value="fpgrowth">FP-Growth</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Top N Luật</label>
+                            <input type="number" id="rule-topn" value="20" min="5" max="100" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Min Lift</label>
+                            <input type="number" id="rule-minlift" value="1.0" step="0.1" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="loadRules()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200">
+                                Áp Dụng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rules Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">#</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Antecedents</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Consequents</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Support</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Confidence</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Lift</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rules-table-body" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                    Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Rules Analysis -->
+                <div class="mt-8 bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Phương Pháp Lựa Chọn Luật</h3>
+                    
+                    <div class="bg-white rounded-lg p-6 mb-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">1. Ưu Tiên Sắp Xếp: Lift (không phải Confidence hay Support)</h4>
+                        <div class="text-gray-700 space-y-2">
+                            <p><strong>Lý do chọn Lift:</strong></p>
+                            <ul class="list-disc ml-6 space-y-1">
+                                <li><strong>Lift</strong> đo độ mạnh của mối quan hệ: Lift > 1 nghĩa là A làm <em>tăng</em> khả năng xuất hiện B</li>
+                                <li><strong>Confidence</strong> bị nhiễu bởi sản phẩm phổ biến: Nếu B rất phổ biến thì confidence cao nhưng không có ý nghĩa</li>
+                                <li><strong>Support</strong> chỉ đo mức độ phổ biến: Không phản ánh pattern mua kèm đặc biệt</li>
+                            </ul>
+                            <div class="bg-cyan-50 border-l-4 border-cyan-600 p-3 mt-3">
+                                <p class="text-sm text-cyan-900"><strong>Ví dụ:</strong> Luật "HERB MARKER ROSEMARY + PARSLEY → THYME" có Lift=74.57 nghĩa là khi mua 2 sản phẩm đầu thì khả năng mua THYME tăng lên <strong>74.57 lần</strong> so với bình thường → Pattern mua combo rất mạnh!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-6 mb-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">2. Ngưỡng Lọc Áp Dụng</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-sm font-semibold">Ngưỡng</th>
+                                        <th class="px-4 py-2 text-left text-sm font-semibold">Giá Trị</th>
+                                        <th class="px-4 py-2 text-left text-sm font-semibold">Lý Do</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y">
+                                    <tr>
+                                        <td class="px-4 py-2 font-medium">min_support</td>
+                                        <td class="px-4 py-2 text-cyan-700">≥ 0.01 (1%)</td>
+                                        <td class="px-4 py-2 text-sm">Loại bỏ luật quá hiếm, đảm bảo pattern có ý nghĩa thống kê</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 font-medium">min_confidence</td>
+                                        <td class="px-4 py-2 text-cyan-700">≥ 0.50 (50%)</td>
+                                        <td class="px-4 py-2 text-sm">Chỉ giữ luật có độ chắc chắn trung bình trở lên</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 font-medium">min_lift</td>
+                                        <td class="px-4 py-2 text-cyan-700">≥ 10.0</td>
+                                        <td class="px-4 py-2 text-sm">Chỉ lấy pattern mua kèm MẠNH (tăng 10 lần), loại bỏ mối quan hệ yếu</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 font-medium">Top-K</td>
+                                        <td class="px-4 py-2 text-cyan-700">20-50 luật</td>
+                                        <td class="px-4 py-2 text-sm">Cân bằng giữa chất lượng và số lượng đặc trưng cho phân cụm</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">3. Ví Dụ 10 Luật Tiêu Biểu (Top Lift)</h4>
+                        <p class="text-sm text-gray-600 mb-3">Dưới đây là 10 luật chất lượng cao được sử dụng làm đầu vào cho phân cụm:</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-gray-200">
+                                <thead class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">#</th>
+                                        <th class="px-3 py-2 text-left">Antecedents</th>
+                                        <th class="px-3 py-2 text-left">Consequents</th>
+                                        <th class="px-3 py-2 text-center">Support</th>
+                                        <th class="px-3 py-2 text-center">Conf</th>
+                                        <th class="px-3 py-2 text-center">Lift</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">1</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER ROSEMARY + PARSLEY</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER THYME</td>
+                                        <td class="px-3 py-2 text-center">0.0109</td>
+                                        <td class="px-3 py-2 text-center">0.95</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">74.57</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">2</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER MINT + THYME</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER ROSEMARY</td>
+                                        <td class="px-3 py-2 text-center">0.0106</td>
+                                        <td class="px-3 py-2 text-center">0.96</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">74.50</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">3</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER MINT + THYME</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER PARSLEY</td>
+                                        <td class="px-3 py-2 text-center">0.0104</td>
+                                        <td class="px-3 py-2 text-center">0.94</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">74.30</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">4</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER PARSLEY + THYME</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER ROSEMARY</td>
+                                        <td class="px-3 py-2 text-center">0.0109</td>
+                                        <td class="px-3 py-2 text-center">0.95</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">74.24</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">5</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER BASIL + THYME</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER ROSEMARY</td>
+                                        <td class="px-3 py-2 text-center">0.0107</td>
+                                        <td class="px-3 py-2 text-center">0.95</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">74.17</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">6</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER BASIL + ROSEMARY</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER THYME</td>
+                                        <td class="px-3 py-2 text-center">0.0107</td>
+                                        <td class="px-3 py-2 text-center">0.94</td>
+                                        <td class="px-3 py-2 text-center text-red-600 font-bold">73.41</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">7</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER MINT + ROSEMARY</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER THYME</td>
+                                        <td class="px-3 py-2 text-center">0.0106</td>
+                                        <td class="px-3 py-2 text-center">0.93</td>
+                                        <td class="px-3 py-2 text-center text-orange-600 font-bold">73.00</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">8</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER MINT + ROSEMARY</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER PARSLEY</td>
+                                        <td class="px-3 py-2 text-center">0.0105</td>
+                                        <td class="px-3 py-2 text-center">0.92</td>
+                                        <td class="px-3 py-2 text-center text-orange-600 font-bold">72.87</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">9</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER BASIL + THYME</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER PARSLEY</td>
+                                        <td class="px-3 py-2 text-center">0.0104</td>
+                                        <td class="px-3 py-2 text-center">0.92</td>
+                                        <td class="px-3 py-2 text-center text-orange-600 font-bold">72.81</td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50">
+                                        <td class="px-3 py-2">10</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER CHIVES</td>
+                                        <td class="px-3 py-2 text-xs">HERB MARKER PARSLEY</td>
+                                        <td class="px-3 py-2 text-center">0.0104</td>
+                                        <td class="px-3 py-2 text-center">0.92</td>
+                                        <td class="px-3 py-2 text-center text-orange-600 font-bold">72.81</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 bg-emerald-50 border-l-4 border-emerald-600 p-4">
+                            <p class="font-semibold text-emerald-900 mb-2">Nhận Xét Chất Lượng:</p>
+                            <ul class="text-sm text-emerald-800 space-y-1">
+                                <li><strong>Lift rất cao (70+)</strong>: Pattern mua combo HERB MARKERS cực kỳ mạnh</li>
+                                <li><strong>Confidence cao (92-96%)</strong>: Độ chắc chắn của luật tốt</li>
+                                <li><strong>Support hợp lý (~1%)</strong>: Đủ phổ biến để có ý nghĩa, không quá hiếm</li>
+                                <li><strong>Ứng dụng</strong>: Dùng để tạo đặc trưng phân cụm → Phân biệt khách mua combo vs đơn lẻ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Feature Engineering -->
+        <div id="tab-features" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Feature Engineering</h2>
+                
+                <!-- Comparison Table -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Biến Thể</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold">Mô Tả</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Rule Features</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Weighting</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">RFM</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold">Scaling</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-blue-50">
+                                <td class="px-6 py-4 font-semibold text-gray-900">Baseline</td>
+                                <td class="px-6 py-4 text-gray-700">Đặc trưng nhị phân theo luật</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Binary</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">None</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">No</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">No</span></td>
+                            </tr>
+                            <tr class="hover:bg-blue-50">
+                                <td class="px-6 py-4 font-semibold text-gray-900">Weighted Rules</td>
+                                <td class="px-6 py-4 text-gray-700">Trọng số theo lift</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Weighted</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Lift</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">No</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Yes</span></td>
+                            </tr>
+                            <tr class="hover:bg-blue-50 bg-cyan-50">
+                                <td class="px-6 py-4 font-semibold text-cyan-900">Rule + RFM (Best)</td>
+                                <td class="px-6 py-4 text-gray-700">Kết hợp weighted rules + RFM</td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Weighted</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Lift</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Yes</span></td>
+                                <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">StandardScaler</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Explanation with Real Examples -->
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Giải Thích Thiết Kế Với Ví Dụ Thực Tế</h3>
+                    <div class="space-y-6">
+                        
+                        <!-- Example Customer Setup -->
+                        <div class="bg-white rounded-lg p-5 border-l-4 border-blue-500">
+                            <h4 class="font-semibold text-gray-800 mb-3">Ví Dụ: Hai Khách Hàng Thực Tế</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div class="bg-blue-50 p-4 rounded">
+                                    <p class="font-bold text-blue-900 mb-2">Khách A (ID: 012748)</p>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Mua: HERB MARKER ROSEMARY + PARSLEY + THYME (combo 3)</li>
+                                        <li>• Recency: 1 ngày</li>
+                                        <li>• Frequency: 209 đơn</li>
+                                        <li>• Monetary: £33,719</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-orange-50 p-4 rounded">
+                                    <p class="font-bold text-orange-900 mb-2">Khách B (ID: 012747)</p>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Mua: WHITE HANGING HEART (đơn lẻ)</li>
+                                        <li>• Recency: 2 ngày</li>
+                                        <li>• Frequency: 11 đơn</li>
+                                        <li>• Monetary: £4,196</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variant 1: Baseline -->
+                        <div class="bg-white rounded-lg p-5">
+                            <h4 class="font-semibold text-gray-800 mb-3">1. Baseline (Binary Rule Features)</h4>
+                            <p class="text-gray-700 mb-3">Mỗi khách hàng được biểu diễn bằng vector nhị phân: 1 nếu thỏa mãn antecedents của luật, 0 nếu không.</p>
+                            <div class="bg-gray-50 p-4 rounded border">
+                                <p class="font-mono text-sm mb-2"><strong>Luật:</strong> ROSEMARY + PARSLEY → THYME (Lift = 74.57)</p>
+                                <div class="grid grid-cols-2 gap-4 mt-3">
+                                    <div>
+                                        <span class="font-semibold">Khách A:</span>
+                                        <code class="ml-2 bg-green-100 px-2 py-1 rounded">rule_1 = 1</code>
+                                        <p class="text-xs text-gray-600 mt-1">Có cả ROSEMARY + PARSLEY</p>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Khách B:</span>
+                                        <code class="ml-2 bg-red-100 px-2 py-1 rounded">rule_1 = 0</code>
+                                        <p class="text-xs text-gray-600 mt-1">Không có combo này</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-orange-600 mt-3"><strong>Vấn đề:</strong> Không phân biệt được luật mạnh (lift 74) vs luật yếu (lift 2)</p>
+                        </div>
+
+                        <!-- Variant 2: Weighted -->
+                        <div class="bg-white rounded-lg p-5">
+                            <h4 class="font-semibold text-gray-800 mb-3">2. Weighted Rules</h4>
+                            <p class="text-gray-700 mb-3">Mỗi rule feature được nhân với <strong>lift</strong> của luật đó để phản ánh độ mạnh.</p>
+                            <div class="bg-gray-50 p-4 rounded border">
+                                <p class="font-mono text-sm mb-2"><strong>Luật:</strong> ROSEMARY + PARSLEY → THYME (Lift = 74.57)</p>
+                                <div class="grid grid-cols-2 gap-4 mt-3">
+                                    <div>
+                                        <span class="font-semibold">Khách A:</span>
+                                        <code class="ml-2 bg-green-100 px-2 py-1 rounded">rule_1 = 1 × 74.57 = 74.57</code>
+                                        <p class="text-xs text-gray-600 mt-1">Pattern mua combo rất mạnh!</p>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Khách B:</span>
+                                        <code class="ml-2 bg-red-100 px-2 py-1 rounded">rule_1 = 0 × 74.57 = 0</code>
+                                        <p class="text-xs text-gray-600 mt-1">Không có pattern này</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-emerald-600 mt-3"><strong>Cải thiện:</strong> Phân biệt rõ luật mạnh vs yếu, nhưng thiếu thông tin RFM</p>
+                        </div>
+
+                        <!-- Variant 3: Rule + RFM (Best) -->
+                        <div class="bg-white rounded-lg p-5 border-2 border-cyan-500">
+                            <h4 class="font-semibold text-gray-800 mb-3">3. Rule + RFM (Phương Án Tốt Nhất)</h4>
+                            <p class="text-gray-700 mb-3">Kết hợp weighted rules + RFM, sau đó chuẩn hóa bằng StandardScaler.</p>
+                            <div class="bg-gray-50 p-4 rounded border">
+                                <p class="font-semibold mb-3">Vector đặc trưng đầy đủ:</p>
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-3 rounded">
+                                        <p class="font-semibold text-blue-900">Khách A (VIP):</p>
+                                        <div class="font-mono text-xs mt-2 space-y-1">
+                                            <div>[rule_1: 74.57, rule_2: 74.50, ..., rule_20: 45.2,</div>
+                                            <div class="ml-4">Recency: 1, Frequency: 209, Monetary: 33719]</div>
+                                            <div class="mt-2 text-green-700">→ Sau scaling: [2.1, 2.1, ..., 1.5, -0.5, 2.8, 2.9]</div>
+                                        </div>
+                                        <p class="text-xs text-gray-700 mt-2">Cao ở cả rules (mua combo) và RFM (giá trị cao)</p>
+                                    </div>
+                                    <div class="bg-orange-50 p-3 rounded">
+                                        <p class="font-semibold text-orange-900">Khách B (Thường):</p>
+                                        <div class="font-mono text-xs mt-2 space-y-1">
+                                            <div>[rule_1: 0, rule_2: 0, ..., rule_20: 2.3,</div>
+                                            <div class="ml-4">Recency: 2, Frequency: 11, Monetary: 4196]</div>
+                                            <div class="mt-2 text-orange-700">→ Sau scaling: [-0.2, -0.2, ..., 0.1, -0.4, -0.8, -0.9]</div>
+                                        </div>
+                                        <p class="text-xs text-gray-700 mt-2">Thấp ở cả rules và RFM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-cyan-100 border-l-4 border-cyan-600 p-4 mt-4">
+                                <p class="font-semibold text-cyan-900">Kết luận:</p>
+                                <p class="text-cyan-800">Biến thể <strong>Rule + RFM</strong> cho phép K-Means tách rõ ràng:</p>
+                                <ul class="text-sm mt-2 space-y-1 text-cyan-800">
+                                    <li>• <strong>Cụm 1 (VIP):</strong> Cao cả rules lẫn RFM → Mua combo + Chi nhiều + Trung thành</li>
+                                    <li>• <strong>Cụm 0 (Thường):</strong> Thấp cả 2 → Mua đơn lẻ + Chi ít + Mua thỉnh thoảng</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Clustering -->
+        <div id="tab-clustering" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Phân Cụm K-Means</h2>
+                
+                <!-- K Selection -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Chọn Số Cụm K</h3>
+                        <div class="prose max-w-none text-gray-700">
+                            <p class="mb-4">Sử dụng <strong>Silhouette Score</strong> để đánh giá chất lượng phân cụm với K từ 2 đến 10.</p>
+                            <ul class="space-y-2">
+                                <li><strong>K = 2:</strong> Silhouette Score cao nhất (0.8541), cụm tách biệt rõ ràng, phù hợp cho chiến lược marketing hai cấp (VIP vs Thường)</li>
+                                <li><strong>K = 3:</strong> Score 0.5813, tốt nhưng thấp hơn đáng kể so với K=2</li>
+                                <li><strong>K ≥ 4:</strong> Score giảm xuống dưới 0.50, cụm chồng lấn nhiều hơn</li>
+                            </ul>
+                            <div class="bg-cyan-100 border-l-4 border-cyan-600 p-4 mt-4">
+                                <p class="font-semibold text-cyan-900">Lựa chọn: K = <span id="selected-k">2</span></p>
+                                <p class="text-cyan-800 text-sm mt-1">Dựa trên Silhouette Score cao nhất (0.8541) - Cụm tách biệt rất rõ ràng, dễ triển khai chiến lược</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Silhouette Score</h3>
+                        <canvas id="silhouetteChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Trực Quan Hóa Cụm (PCA 2D)</h3>
+                    <div class="flex justify-center">
+                        <canvas id="pcaScatterChart" width="800" height="500"></canvas>
+                    </div>
+                    
+                    <!-- Explanation -->
+                    <div class="mt-6 space-y-4">
+                        <div class="bg-white rounded-lg p-5 border-l-4 border-blue-500">
+                            <h4 class="font-semibold text-gray-800 mb-3">Giải Thích Biểu Đồ</h4>
+                            <div class="space-y-3 text-gray-700">
+                                <div>
+                                    <p class="font-semibold text-blue-800">PCA (Principal Component Analysis) là gì?</p>
+                                    <p class="text-sm">Kỹ thuật giảm chiều: Thu gọn vector nhiều chiều (ví dụ 23 chiều: 20 rules + 3 RFM) về 2 chiều (PC1, PC2) để vẽ biểu đồ 2D, giữ lại phần lớn thông tin quan trọng.</p>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-blue-800">PC1 và PC2 là gì?</p>
+                                    <ul class="text-sm space-y-1 ml-4 mt-1">
+                                        <li>• <strong>PC1</strong> (trục ngang): Thành phần chính thứ 1 - giữ thông tin nhiều nhất</li>
+                                        <li>• <strong>PC2</strong> (trục dọc): Thành phần chính thứ 2 - giữ thông tin nhiều thứ hai</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-lg p-5 border-l-4 border-orange-500">
+                            <h4 class="font-semibold text-orange-800 mb-3">Nhận Xét Về Biểu Đồ</h4>
+                            <div class="space-y-3 text-gray-700 text-sm">
+                                <div>
+                                    <p class="font-semibold text-orange-800">Vấn đề: Cụm phân bố "lạ"</p>
+                                    <ul class="ml-4 space-y-1 mt-1">
+                                        <li>• <strong>Cụm 0 (Cyan)</strong>: ~3,920 khách hàng tập trung dày đặc ở trung tâm (PC1: -10→10, PC2: -1→3)</li>
+                                        <li>• <strong>Cụm 1 (Blue)</strong>: Chỉ ~1 khách hàng ở vị trí cực xa (PC1: ~90, PC2: ~8)</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-orange-800">Nguyên nhân: Outlier cực đoan</p>
+                                    <p class="mt-1">Có 1 khách hàng (CustomerID: "000nan") với:</p>
+                                    <ul class="ml-4 space-y-1 mt-1">
+                                        <li>• Frequency: <strong>1,373 đơn</strong> (gấp ~6.5 lần TB)</li>
+                                        <li>• Monetary: <strong>£1,716,830</strong> (gấp ~50 lần TB!)</li>
+                                        <li>→ Là một outlier <strong>nghiêm trọng</strong>, có thể là dữ liệu lỗi hoặc khách B2B đặc biệt</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-orange-800">Ảnh hưởng:</p>
+                                    <ul class="ml-4 space-y-1 mt-1">
+                                        <li>• K-Means bị "kéo" bởi outlier → Tạo 1 cụm riêng cho 1 khách hàng này</li>
+                                        <li>• 3,920 khách còn lại được gộp vào 1 cụm → Mất đi sự đa dạng</li>
+                                        <li>• Silhouette Score cao (0.85) là <strong>giả tạo</strong> - do 2 cụm tách quá xa, không phản ánh chất lượng thật</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 rounded-lg p-5 border-l-4 border-emerald-500">
+                            <h4 class="font-semibold text-emerald-800 mb-3">Khuyến Nghị Cải Thiện</h4>
+                            <div class="text-sm text-gray-700 space-y-2">
+                                <p><strong>1. Xử lý Outlier:</strong></p>
+                                <ul class="ml-4 space-y-1">
+                                    <li>• Loại bỏ CustomerID "000nan" (dữ liệu lỗi)</li>
+                                    <li>• Hoặc giới hạn Monetary bằng winsorization (giới hạn ở percentile 99)</li>
+                                    <li>• Áp dụng log transformation cho Monetary để giảm skewness</li>
+                                </ul>
+                                <p class="mt-3"><strong>2. Thử lại phân cụm:</strong></p>
+                                <ul class="ml-4 space-y-1">
+                                    <li>• Sau khi xử lý outlier, chạy lại K-Means với K=2,3,4</li>
+                                    <li>• Kiểm tra lại Silhouette Score - nên thấp hơn nhưng phản ánh chất lượng thật</li>
+                                    <li>• Biểu đồ PCA sẽ cân đối hơn, 2 cụm đều có số lượng hợp lý</li>
+                                </ul>
+                                <p class="mt-3"><strong>3. Phân tích riêng outlier:</strong></p>
+                                <ul class="ml-4 space-y-1">
+                                    <li>• Xem CustomerID "000nan" như 1 case đặc biệt (VIP cực độ hoặc B2B)</li>
+                                    <li>• Phân tích 3,920 khách còn lại thành 2-3 cụm có ý nghĩa</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methodology -->
+                <div class="mt-8 bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Phương Pháp</h3>
+                    <div class="prose max-w-none text-gray-700">
+                        <ol class="space-y-2">
+                            <li><strong>Chuẩn bị dữ liệu:</strong> Sử dụng biến thể Rule + RFM với StandardScaler</li>
+                            <li><strong>Khảo sát K:</strong> Test K từ 2-10, tính Silhouette Score cho mỗi K</li>
+                            <li><strong>Chọn K tối ưu:</strong> Chọn K có Silhouette Score cao và có ý nghĩa marketing</li>
+                            <li><strong>Huấn luyện K-Means:</strong> Fit K-Means với K đã chọn, random_state=42 để tái tạo được</li>
+                            <li><strong>Trực quan hóa:</strong> Giảm chiều về 2D bằng PCA, vẽ scatter plot tô màu theo cluster</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Cluster Profiling -->
+        <div id="tab-profiling" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Hồ Sơ Từng Cụm</h2>
+                
+                <!-- Cluster Selector -->
+                <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Chọn Cụm</label>
+                    <select id="cluster-selector" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" onchange="loadClusterProfile()">
+                        <option value="">Đang tải...</option>
+                    </select>
+                </div>
+
+                <!-- Cluster Profile Content -->
+                <div id="cluster-profile-content" class="space-y-6">
+                    <div class="text-center text-gray-500 py-12">
+                        Vui lòng chọn một cụm để xem chi tiết
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: Marketing Strategies -->
+        <div id="tab-strategy" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-cyan-600 pb-3">Chiến Lược Marketing</h2>
+                
+                <div id="strategies-content" class="space-y-6">
+                    <div class="text-center text-gray-500 py-12">
+                        Đang tải chiến lược...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="container mx-auto px-6 py-6">
+            <div class="text-center text-gray-600 text-sm">
+                <p>Shop Cluster Analysis Dashboard</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+    
+    <script>
+        // Tab navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('tab-active');
+                });
+                this.classList.add('tab-active');
+                
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            });
+        });
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            initDashboard();
+        });
+    </script>
+</body>
+</html>
