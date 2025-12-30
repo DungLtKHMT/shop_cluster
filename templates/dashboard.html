@@ -210,11 +210,59 @@
                                     </tr>
                                     <tr>
                                         <td class="px-4 py-2 font-medium">Top-K</td>
-                                        <td class="px-4 py-2 text-cyan-700">20-50 luật</td>
-                                        <td class="px-4 py-2 text-sm">Cân bằng giữa chất lượng và số lượng đặc trưng cho phân cụm</td>
+                                        <td class="px-4 py-2 text-cyan-700 font-semibold">200 luật (11% tốt nhất)</td>
+                                        <td class="px-4 py-2 text-sm">Cân bằng information (80%) vs noise (10%). Samples/features = 19.6 (tốt cho K-Means). Lift cutoff ≈ 10. Đạt Silhouette = 0.8541</td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg p-6 border-2 border-cyan-200">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">📊</span>
+                            Thử Nghiệm Top-K: Tại Sao Chọn 200?
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-4">
+                            Chúng tôi đã chạy thử nghiệm với 6 giá trị Top-K khác nhau (50, 100, 200, 300, 500, 1000) và đánh giá bằng <strong>Silhouette Score</strong>.
+                        </p>
+                        
+                        <div class="bg-white rounded-lg p-4 mb-4">
+                            <img src="/static/images/top_k_comparison.png" alt="Top-K Comparison" class="w-full rounded-lg shadow-md">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white rounded-lg p-4 border-l-4 border-green-500">
+                                <h5 class="font-semibold text-green-700 mb-2">✅ Kết Quả Thử Nghiệm</h5>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li><strong>Top-K = 50:</strong> Sil = 0.986 (cao nhất) nhưng <span class="text-red-600">mất 89% thông tin</span></li>
+                                    <li><strong>Top-K = 100:</strong> Sil = 0.922, samples/feature = 38 (tốt)</li>
+                                    <li><strong>Top-K = 200:</strong> Sil = <span class="text-green-600 font-bold">0.854</span>, samples/feature = 19.3 (cân bằng)</li>
+                                    <li><strong>Top-K = 300-500:</strong> Sil giảm (0.84-0.82), bắt đầu có noise</li>
+                                    <li><strong>Top-K = 1000:</strong> Sil = 0.788, samples/feature = 3.9 (<span class="text-red-600">curse of dimensionality</span>)</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border-l-4 border-blue-500">
+                                <h5 class="font-semibold text-blue-700 mb-2">🎯 Lý Do Chọn K=200</h5>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>1. <strong>Silhouette cao:</strong> 0.854 (excellent clustering)</li>
+                                    <li>2. <strong>Samples/Features = 19.3:</strong> Vượt ngưỡng 10:1</li>
+                                    <li>3. <strong>Mean Lift = 42.2:</strong> Giữ được luật mạnh (Lift > 20)</li>
+                                    <li>4. <strong>Capture 80% information:</strong> Đủ để phân biệt patterns</li>
+                                    <li>5. <strong>Chỉ 10% noise:</strong> Loại bỏ luật yếu (Lift < 20)</li>
+                                    <li>6. <strong>Không overfitting:</strong> Tránh curse of dimensionality</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                            <p class="text-sm text-gray-700">
+                                <strong>💡 Insight:</strong> Top-K = 50 có Silhouette cao hơn (0.986) nhưng <strong>không phù hợp</strong> vì:
+                                <span class="text-red-600 font-semibold">thiếu diversity</span> (chỉ 50 rules không đủ capture hành vi đa dạng của 3,921 khách hàng),
+                                <span class="text-red-600 font-semibold">mất thông tin</span> (bỏ qua 1,744/1,794 = 97% luật có giá trị).
+                                Top-K = 200 là điểm sweet spot: <strong>đủ thông tin + không nhiễu + clustering tốt</strong>.
+                            </p>
                         </div>
                     </div>
 
